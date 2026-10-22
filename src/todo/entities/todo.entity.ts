@@ -1,15 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { TimestampEntity } from '../../common/entities/timestamp.entity.js';
 import { TodoStatusEnum } from '../enums/todo-status.enum.js';
 
 @Entity('todo')
-export class TodoEntity {
+export class TodoEntity extends TimestampEntity {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -18,15 +12,6 @@ export class TodoEntity {
 
   @Column()
   description: string;
-
-  @CreateDateColumn({ update: false })
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 
   @Column({
     type: 'enum',
