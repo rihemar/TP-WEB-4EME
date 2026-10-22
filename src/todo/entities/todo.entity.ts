@@ -14,7 +14,7 @@ export class TodoEntity extends TimestampEntity {
   description: string;
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: TodoStatusEnum,
     default: TodoStatusEnum.waiting,
   })
