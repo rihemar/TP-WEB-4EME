@@ -3,12 +3,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-<<<<<<< Updated upstream
   PrimaryColumn,
-=======
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
->>>>>>> Stashed changes
 } from 'typeorm';
 import { TodoStatusEnum } from '../enums/todo-status.enum.js';
 
