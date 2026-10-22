@@ -44,4 +44,30 @@ describe('TodoService', () => {
       NotFoundException,
     );
   });
+
+  it('soft deletes and recovers an existing todo', () => {
+    const createdTodo = service.create(
+      Object.assign(new CreateTodoDto(), {
+        name: 'Homework',
+        description: 'Finish the web assignment',
+      }),
+    );
+
+    expect(createdTodo.deletedAt).toBeNull();
+
+    const deletedTodo = service.softDelete(createdTodo.id);
+
+    expect(deletedTodo.deletedAt).toBeInstanceOf(Date);
+    expect(deletedTodo.id).toBe(createdTodo.id);
+
+    const recoveredTodo = service.recover(createdTodo.id);
+
+    expect(recoveredTodo.deletedAt).toBeNull();
+    expect(recoveredTodo.name).toBe(createdTodo.name);
+  });
+
+  it('throws when soft-deleting or recovering a missing todo', () => {
+    expect(() => service.softDelete('missing-id')).toThrow(NotFoundException);
+    expect(() => service.recover('missing-id')).toThrow(NotFoundException);
+  });
 });

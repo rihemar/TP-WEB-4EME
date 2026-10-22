@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Post,
   Param,
+  Patch,
   Put,
   UsePipes,
   ValidationPipe,
@@ -29,5 +31,15 @@ export class TodoController {
     @Body() updateTodoDto: UpdateTodoDto,
   ): TodoDto {
     return this.todoService.update(id, updateTodoDto);
+  }
+
+  @Delete(':id')
+  softDeleteTodo(@Param('id') id: string): TodoDto {
+    return this.todoService.softDelete(id);
+  }
+
+  @Patch(':id/recover')
+  recoverTodo(@Param('id') id: string): TodoDto {
+    return this.todoService.recover(id);
   }
 }

@@ -20,6 +20,7 @@ export class TodoService {
       name: createTodoDto.name,
       description: createTodoDto.description,
       createdAt: new Date(),
+      deletedAt: null,
       status: createTodoDto.status ?? TodoStatusEnum.waiting,
     });
 
@@ -41,5 +42,33 @@ export class TodoService {
     const updatedTodo = Object.assign(new TodoDto(), existingTodo, changes);
     this.todos.set(id, updatedTodo);
     return updatedTodo;
+  }
+
+  softDelete(id: string): TodoDto {
+    const existingTodo = this.todos.get(id);
+
+    if (!existingTodo) {
+      throw new NotFoundException(`Todo with id "${id}" was not found.`);
+    }
+
+    const deletedTodo = Object.assign(new TodoDto(), existingTodo, {
+      deletedAt: new Date(),
+    });
+    this.todos.set(id, deletedTodo);
+    return deletedTodo;
+  }
+
+  recover(id: string): TodoDto {
+    const existingTodo = this.todos.get(id);
+
+    if (!existingTodo) {
+      throw new NotFoundException(`Todo with id "${id}" was not found.`);
+    }
+
+    const recoveredTodo = Object.assign(new TodoDto(), existingTodo, {
+      deletedAt: null,
+    });
+    this.todos.set(id, recoveredTodo);
+    return recoveredTodo;
   }
 }

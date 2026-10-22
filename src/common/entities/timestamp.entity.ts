@@ -8,5 +8,5 @@ export abstract class TimestampEntity {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+  deletedAt: Date | null;
 }

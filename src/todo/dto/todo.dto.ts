@@ -5,5 +5,6 @@ export class TodoDto {
   name: string;
   description: string;
   createdAt: Date;
+  deletedAt: Date | null;
   status: TodoStatusEnum;
 }
