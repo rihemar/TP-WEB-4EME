@@ -2,9 +2,9 @@ import {
   Body,
   Controller,
   Delete,
+  Patch,
   Post,
   Param,
-  Patch,
   Put,
   UsePipes,
   ValidationPipe,
@@ -20,7 +20,7 @@ export class TodoController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  createTodo(@Body() createTodoDto: CreateTodoDto): TodoDto {
+  createTodo(@Body() createTodoDto: CreateTodoDto): Promise<TodoDto> {
     return this.todoService.create(createTodoDto);
   }
 
@@ -29,17 +29,22 @@ export class TodoController {
   updateTodo(
     @Param('id') id: string,
     @Body() updateTodoDto: UpdateTodoDto,
-  ): TodoDto {
+  ): Promise<TodoDto> {
     return this.todoService.update(id, updateTodoDto);
   }
 
   @Delete(':id')
-  softDeleteTodo(@Param('id') id: string): TodoDto {
+  deleteTodo(@Param('id') id: string): Promise<void> {
+    return this.todoService.delete(id);
+  }
+
+  @Delete(':id/soft')
+  softDeleteTodo(@Param('id') id: string): Promise<void> {
     return this.todoService.softDelete(id);
   }
 
-  @Patch(':id/recover')
-  recoverTodo(@Param('id') id: string): TodoDto {
-    return this.todoService.recover(id);
+  @Patch(':id/restore')
+  restoreTodo(@Param('id') id: string): Promise<void> {
+    return this.todoService.restore(id);
   }
 }

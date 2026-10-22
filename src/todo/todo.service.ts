@@ -1,4 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UUID_GENERATOR } from '../common/common.module.js';
 import { CreateTodoDto } from './dto/create-todo.dto.js';
 import { TodoDto } from './dto/todo.dto.js';
@@ -8,29 +10,25 @@ import { TodoEntity } from './entities/todo.entity.js';
 
 @Injectable()
 export class TodoService {
-  private readonly todos = new Map<string, TodoDto>();
-
   constructor(
+    @InjectRepository(TodoEntity)
+    private readonly todoRepository: Repository<TodoEntity>,
     @Inject(UUID_GENERATOR) private readonly generateUuid: () => string,
   ) {}
 
-  create(createTodoDto: CreateTodoDto): TodoDto {
-    const todo = Object.assign(new TodoEntity(), {
+  async create(createTodoDto: CreateTodoDto): Promise<TodoDto> {
+    const todo = this.todoRepository.create({
       id: this.generateUuid(),
       name: createTodoDto.name,
       description: createTodoDto.description,
-      createdAt: new Date(),
-      deletedAt: null,
       status: createTodoDto.status ?? TodoStatusEnum.waiting,
     });
 
-    const result = Object.assign(new TodoDto(), todo);
-    this.todos.set(result.id, result);
-    return result;
+    return Object.assign(new TodoDto(), await this.todoRepository.save(todo));
   }
 
-  update(id: string, updateTodoDto: UpdateTodoDto): TodoDto {
-    const existingTodo = this.todos.get(id);
+  async update(id: string, updateTodoDto: UpdateTodoDto): Promise<TodoDto> {
+    const existingTodo = await this.todoRepository.findOneBy({ id });
 
     if (!existingTodo) {
       throw new NotFoundException(`Todo with id "${id}" was not found.`);
@@ -39,36 +37,31 @@ export class TodoService {
     const changes = Object.fromEntries(
       Object.entries(updateTodoDto).filter(([, value]) => value !== undefined),
     );
-    const updatedTodo = Object.assign(new TodoDto(), existingTodo, changes);
-    this.todos.set(id, updatedTodo);
-    return updatedTodo;
+    Object.assign(existingTodo, changes);
+    return Object.assign(
+      new TodoDto(),
+      await this.todoRepository.save(existingTodo),
+    );
   }
 
-  softDelete(id: string): TodoDto {
-    const existingTodo = this.todos.get(id);
-
-    if (!existingTodo) {
+  async delete(id: string): Promise<void> {
+    const result = await this.todoRepository.delete(id);
+    if (result.affected === 0) {
       throw new NotFoundException(`Todo with id "${id}" was not found.`);
     }
-
-    const deletedTodo = Object.assign(new TodoDto(), existingTodo, {
-      deletedAt: new Date(),
-    });
-    this.todos.set(id, deletedTodo);
-    return deletedTodo;
   }
 
-  recover(id: string): TodoDto {
-    const existingTodo = this.todos.get(id);
-
-    if (!existingTodo) {
+  async softDelete(id: string): Promise<void> {
+    const result = await this.todoRepository.softDelete(id);
+    if (result.affected === 0) {
       throw new NotFoundException(`Todo with id "${id}" was not found.`);
     }
+  }
 
-    const recoveredTodo = Object.assign(new TodoDto(), existingTodo, {
-      deletedAt: null,
-    });
-    this.todos.set(id, recoveredTodo);
-    return recoveredTodo;
+  async restore(id: string): Promise<void> {
+    const result = await this.todoRepository.restore(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Deleted todo with id "${id}" was not found.`);
+    }
   }
 }
