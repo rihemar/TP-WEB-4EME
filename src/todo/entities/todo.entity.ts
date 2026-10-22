@@ -1,8 +1,14 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
+<<<<<<< Updated upstream
   PrimaryColumn,
+=======
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+>>>>>>> Stashed changes
 } from 'typeorm';
 import { TodoStatusEnum } from '../enums/todo-status.enum.js';
 
@@ -17,8 +23,14 @@ export class TodoEntity {
   @Column()
   description: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ update: false })
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @Column({
     type: 'enum',
