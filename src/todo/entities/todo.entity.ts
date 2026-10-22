@@ -2,14 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { TodoStatusEnum } from '../enums/todo-status.enum.js';
 
 @Entity('todo')
 export class TodoEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
